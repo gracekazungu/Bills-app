@@ -6,13 +6,17 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
 import com.example.assessment.databinding.ActivityMainBinding
+import com.example.assessment.model.RegisterRequest
+import com.example.assessment.viewmodel.UserViewModel
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-
+ val userViewModel: UserViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -22,24 +26,34 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         binding.btnbutton.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            clearErrors()
             validateDetails()
         }
+
+        userViewModel.errLiveData.observe(this, Observer{ err->
+            Toast.makeText(this, err, Toast.LENGTH_LONG).show()
+        })
+        userViewModel.regLiveData.observe(this, Observer{ regResponse->
+            Toast.makeText(this,regResponse.message, Toast.LENGTH_LONG).show()
+        })
     }
 fun validateDetails() {
-    val username = binding.etusername.text.toString()
-    val phonenumber = binding.etphonenumber.text.toString()
+    val firstname = binding.etusername.text.toString()
+    val phoneNumber = binding.etphonenumber.text.toString()
     val email = binding.etemail.text.toString()
     val password = binding.etpassword.text.toString()
+    val confirmpassword=binding.etConfirmPassword.text.toString()
+    val lastname=binding.etLastName.text.toString()
     var error = false
 
-    if (username.isBlank()) {
-        binding.tilusername.error = "Username is required"
+    if (firstname.isBlank()) {
+        binding.tilusername.error = "First Name is required"
         error = true
     }
-    if (phonenumber.isBlank()) {
+    if (lastname.isBlank()) {
+        binding.tilusername.error = "Last Name is required"
+        error = true
+    }
+    if (phoneNumber.isBlank()) {
         binding.tilphonenumber.error = "phone number is required"
         error = true
     }
@@ -52,18 +66,34 @@ fun validateDetails() {
         binding.tilpassword.error = "password is required"
         error = true
     }
+    if (confirmpassword.isBlank()) {
+        binding.tilpassword.error = "password is required"
+        error = true
+    }
+    if (confirmpassword != password) {
+        binding.tilpassword.error = "passwords must be equal"
+        error = true
+    }
 
     if (!error) {
-        Toast.makeText(this, "Hello you have successfully registered ro our bills app", Toast.LENGTH_LONG).show()
+//        val registerRequest=RegisterRequest(firstname,lastname,phoneNumber,email,password,confirmpassword)
+        val registerRequest=RegisterRequest(
+            firstname=firstname,
+            lastname=lastname,
+            email=email,
+            password=password,
+            phoneNumber = phoneNumber
+        )
+        userViewModel.registerUser(registerRequest)
     }
 }
 
-fun clearErrors() {
-    binding.tilusername.error = null
-    binding.tilphonenumber.error = null
-    binding.tilemail.error = null
-    binding.tilpassword.error = null
-}
+//fun clearErrors() {
+//    binding.tilusername.error = null
+//    binding.tilphonenumber.error = null
+//    binding.tilemail.error = null
+//    binding.tilpassword.error = null
+//}
 }
 
 
