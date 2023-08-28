@@ -1,2 +1,2 @@
-# Bills-app
-https://appetize.io/app/lw2g3x6ofwvzrj7tnflighlqye
+# Bills-App
+https://appetize.io/app/ka6va5pz6xofdczztudso2lfdi
